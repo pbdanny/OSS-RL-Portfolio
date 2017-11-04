@@ -1,0 +1,16 @@
+data_loading: FALSE
+cache_loading: FALSE
+munging: TRUE
+logging: FALSE
+load_libraries: TRUE
+libraries: readr, dplyr, tidyr, ggplot2
+as_factors: FALSE
+data_tables: FALSE
+recursive_loading: TRUE
+version: 0.8
+attach_internal_libraries: FALSE
+data_loading_header: TRUE
+data_ignore:
+logging_level: INFO
+cache_loaded_data: FALSE
+sticky_variables: NONE

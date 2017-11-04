@@ -1,0 +1,30 @@
+# Initialise Project
+```{r adjust_directory_if_needed, include=FALSE}
+# Uncomment lines below if rmd file is placed in a subdirectory
+# library(knitr)
+# opts_knit$set(root.dir = normalizePath('../')) 
+```
+
+```{r load_project, include=FALSE}
+# 1. Set options in config/global.dcf
+# 2. Load packages listed in config/global.dcf
+# 3. Import functions and coe in lib directory
+# 4. Load data in data directory
+# 5. Run data manipulations in munge directory 
+
+rm(list = ls()) # optionally refresh workspace
+library(ProjectTemplate); load.project()
+```             
+
+# Explore
+Plot age distribution D36 vs others D
+
+```{r simpleplot, echo=FALSE}
+df %>%
+    filter(result == 'D') %>%
+    mutate(D_group =
+           ifelse(result_description == 'D36', 'D36', 'Oth-D')) %>%
+    ggplot(aes(x = age, color = D_group)) + 
+    geom_density() +
+    ggtitle("D36 vs Other-D Age Distribution")
+```
