@@ -1,3 +1,9 @@
+---
+output: 
+  html_document:
+    keep_md: true
+---
+
 # Initialise Project
 ```{r adjust_directory_if_needed, include=FALSE}
 # Uncomment lines below if rmd file is placed in a subdirectory
