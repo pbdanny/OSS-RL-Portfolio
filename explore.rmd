@@ -1,9 +1,7 @@
 ---
 output: 
   html_document:
-    keep_md: false
-editor_options: 
-  chunk_output_type: inline
+    keep_md: true
 ---
 
 # OSS RL Aug-Sep 2017 analysis on D36
