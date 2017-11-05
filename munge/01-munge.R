@@ -7,3 +7,7 @@
 # By convention, the list that stores these variable sets is called 'v'
 # v <- list()
 
+rl_os <- df %>%
+    filter(channel == 'OSS')
+
+cache('df'); rm(df)

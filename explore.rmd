@@ -1,11 +1,15 @@
 ---
 output: 
   html_document:
-    keep_md: true
+    keep_md: false
+editor_options: 
+  chunk_output_type: inline
 ---
 
-# Initialise Project
+# OSS RL Aug-Sep 2017 analysis on D36
+
 ```{r adjust_directory_if_needed, include=FALSE}
+# Initialise Project
 # Uncomment lines below if rmd file is placed in a subdirectory
 # library(knitr)
 # opts_knit$set(root.dir = normalizePath('../')) 
@@ -22,15 +26,23 @@ rm(list = ls()) # optionally refresh workspace
 library(ProjectTemplate); load.project()
 ```             
 
+## Summary of RL finalized
+```{r table_summary_result, echo=FALSE}
+library(kableExtra)
+table(rl_os$result, rl_os$month) %>%
+    kable(format = 'html') %>%
+    kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
 # Explore
 Plot age distribution D36 vs others D
 
 ```{r simpleplot, echo=FALSE}
-df %>%
-    filter(result == 'D') %>%
-    mutate(D_group =
-           ifelse(result_description == 'D36', 'D36', 'Oth-D')) %>%
-    ggplot(aes(x = age, color = D_group)) + 
-    geom_density() +
-    ggtitle("D36 vs Other-D Age Distribution")
+rl_os %>%
+        filter(result == 'D') %>%
+        mutate(D_group = ifelse(result_description == 'D36', 'D36', 'Oth-D')) %>%
+        ggplot(aes(x = age, color = D_group)) +
+        geom_density() +
+        ggtitle("D36 vs Other-D Age Distribution")
 ```
