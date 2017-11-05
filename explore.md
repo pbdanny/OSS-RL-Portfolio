@@ -6,7 +6,7 @@
 
 
 ## Summary of RL finalized
-<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">   </th>
    <th style="text-align:right;"> 201708 </th>
