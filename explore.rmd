@@ -28,10 +28,11 @@ library(ProjectTemplate); load.project()
 ```{r table_summary_result, echo=FALSE}
 library(kableExtra)
 table(rl_os$result, rl_os$month) %>%
-    kable(format = 'html') %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
 ```
-
 
 # Explore
 Plot age distribution D36 vs others D

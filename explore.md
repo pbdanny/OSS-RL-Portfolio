@@ -6,7 +6,7 @@
 
 
 ## Summary of RL finalized
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<table class="table table-striped table-hover" style="width: auto !important; ">
 <thead><tr>
 <th style="text-align:left;">   </th>
    <th style="text-align:right;"> 201708 </th>
@@ -15,18 +15,18 @@
 <tbody>
 <tr>
 <td style="text-align:left;"> A </td>
-   <td style="text-align:right;"> 8255 </td>
-   <td style="text-align:right;"> 4945 </td>
+   <td style="text-align:right;"> 8,255 </td>
+   <td style="text-align:right;"> 4,945 </td>
   </tr>
 <tr>
 <td style="text-align:left;"> C </td>
-   <td style="text-align:right;"> 2915 </td>
-   <td style="text-align:right;"> 2064 </td>
+   <td style="text-align:right;"> 2,915 </td>
+   <td style="text-align:right;"> 2,064 </td>
   </tr>
 <tr>
 <td style="text-align:left;"> D </td>
-   <td style="text-align:right;"> 17526 </td>
-   <td style="text-align:right;"> 11927 </td>
+   <td style="text-align:right;"> 17,526 </td>
+   <td style="text-align:right;"> 11,927 </td>
   </tr>
 </tbody>
 </table>
