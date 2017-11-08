@@ -44,6 +44,7 @@ rl_os %>%
 
 ## Key Kpi by Month
 ### Approved Performance
+
 % Approval rate, Avg Loansize, Avg FDD, % Early 60D
 ```{r key_kpi_summary, echo=FALSE}
 rl_os %>%
@@ -105,20 +106,40 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
-Customer income density
+Customer income density, (interactive graph)
 ```{r cust_inc_density, echo=FALSE}
-rl_os %>%
+library(plotly)
+p <- rl_os %>%
     filter(monthly_salary > 1) %>%
-    ggplot(aes(x = monthly_salary)) + geom_density() +
-    scale_x_log10(breaks = c(10000, 20000, 30000), 
-                  labels = c('10k', '20k', '30k'))
+    ggplot(aes(x = monthly_salary, color = factor(month))) + geom_density() +
+    scale_x_log10(breaks = c(10000, 15000, 20000, 30000, 40000, 50000), 
+                  labels = c('10k', '15k', '20k', '30k', '40k', '50k'),
+                  limits = c(5000, 150000))
+ggplotly(p)
 ```
 
-
 Customer age range table
-Customer age density
-Customer region table 
-Customer region map
+```{r cust_age_table, echo=FALSE}
+rl_os %>%
+    group_by(month, cus_age_range) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
+Customer age density, (interactive graph)
+```{r cust_age_density, echo=FALSE}
+p <- rl_os %>%
+    ggplot(aes(x = age, color = factor(month))) + geom_density()
+ggplotly(p)
+```
+
+Customer region table
+
+Customer region map, (interactive map)
 
 # Explore
 Plot age distribution D36 vs others D
