@@ -24,12 +24,10 @@ rm(list = ls()) # optionally refresh workspace
 library(ProjectTemplate); load.project()
 ```             
 
-### Key number summary
+## Key number summary
 ```{r table_summary_result, echo=FALSE}
-
-library(kableExtra)
-
 rl_os %>%
+    filter(appr, approve_amount, fdd) %>%
     group_by(month) %>%
     summarise(finalize = n(), appr = sum(appr), 
               loansize_amt = sum(approve_amount), fdd_amt = sum(fdd)) %>%
@@ -42,22 +40,81 @@ rl_os %>%
           format.args = list(decimal.mark = ".", big.mark = ",")) %>%
     kable_styling(bootstrap_options = c("striped", "hover"),
                   full_width = FALSE, position = 'left')
-
 ```
+
 ## Key Kpi by Month
-
 ### Approved Performance
-
-% Approval rate
-Avg Loansize
-Avg FDD
-% Early 60D
+% Approval rate, Avg Loansize, Avg FDD, % Early 60D
+```{r key_kpi_summary, echo=FALSE}
+rl_os %>%
+    group_by(month) %>%
+    summarise(per_appr = sum(appr)/n()*100, 
+              avg_loansize = sum(approve_amount)/sum(appr),
+              avg_fdd = sum(fdd)/sum(appr), 
+              per_early60D = sum(vxandearly60)/sum(appr)*100) %>%
+    gather(key = kpi, value = value, -month) %>%
+    spread(key = month, value = value) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
 
 ### Finalized Performance
-Top Reject Reason
 Top Decline Reason
+```{r top_decline, echo=FALSE}
+rl_os %>%
+    filter(result == 'D') %>%
+    group_by(month, result_description) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    top_n(5) %>%
+    left_join(reason_desc, by = c('result_description' = 'reason_code')) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
+Top Cancel Reason
+```{r top_cancel, echo=FALSE}
+rl_os %>%
+    filter(result == 'C') %>%
+    group_by(month, result_description) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    top_n(5) %>%
+    left_join(reason_desc, by = c('result_description' = 'reason_code')) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
 Customer income range table
+```{r cust_inc_table, echo=FALSE}
+rl_os %>%
+    filter(income_range %in% c('10,000-14,999', '15,000-19,999', 
+                               '20,000-29,999', '30,000 up')) %>%
+    group_by(month, income_range) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
 Customer income density
+```{r cust_inc_density, echo=FALSE}
+rl_os %>%
+    filter(monthly_salary > 1) %>%
+    ggplot(aes(x = monthly_salary)) + geom_density() +
+    scale_x_log10(breaks = c(10000, 20000, 30000), 
+                  labels = c('10k', '20k', '30k'))
+```
+
+
 Customer age range table
 Customer age density
 Customer region table 
