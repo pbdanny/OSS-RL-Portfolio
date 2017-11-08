@@ -1,9 +1,9 @@
-data_loading: FALSE
-cache_loading: TRUE
+data_loading: TRUE
+cache_loading: FALSE
 munging: TRUE
 logging: FALSE
 load_libraries: TRUE
-libraries: readr, dplyr, tidyr, ggplot2, knitr
+libraries: readr, dplyr, tidyr, ggplot2, knitr, kableExtra
 as_factors: FALSE
 data_tables: FALSE
 recursive_loading: TRUE
