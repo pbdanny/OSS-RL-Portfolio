@@ -10,6 +10,3 @@
 rl_os <- df %>%
     filter(channel == 'OSS')
 cache('df'); rm(df)
-
-reason_desc <- reason.desc
-rm(reason.desc)
