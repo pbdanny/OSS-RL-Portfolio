@@ -24,15 +24,44 @@ rm(list = ls()) # optionally refresh workspace
 library(ProjectTemplate); load.project()
 ```             
 
-## Summary of RL finalized
+### Key number summary
 ```{r table_summary_result, echo=FALSE}
+
 library(kableExtra)
-table(rl_os$result, rl_os$month) %>%
+
+rl_os %>%
+    group_by(month) %>%
+    summarise(finalize = n(), appr = sum(appr), 
+              loansize_amt = sum(approve_amount), fdd_amt = sum(fdd)) %>%
+    gather(key = kpi, value = value, -month) %>%
+    spread(key = month, value = value) %>%
+    mutate(kpi = factor(kpi, levels = c('finalize', 'appr', 
+                                        'loansize_amt', 'fdd_amt'))) %>%
+    arrange(kpi) %>%
     kable(format = 'html', digits = 2,
           format.args = list(decimal.mark = ".", big.mark = ",")) %>%
     kable_styling(bootstrap_options = c("striped", "hover"),
                   full_width = FALSE, position = 'left')
+
 ```
+## Key Kpi by Month
+
+### Approved Performance
+
+% Approval rate
+Avg Loansize
+Avg FDD
+% Early 60D
+
+### Finalized Performance
+Top Reject Reason
+Top Decline Reason
+Customer income range table
+Customer income density
+Customer age range table
+Customer age density
+Customer region table 
+Customer region map
 
 # Explore
 Plot age distribution D36 vs others D
