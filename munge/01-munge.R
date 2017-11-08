@@ -1,12 +1,12 @@
-# Data manipulations
-# Highlight and run command below do load project without munging.
-# This is useful when debugging data manipulation code.
-# rm(list = ls()); library(ProjectTemplate); load.project(list(munging=FALSE)) 
+# Add alternative data importation commands for files in 
+# the data folder that should not be imported using standard data importation rules
+df <- read_tsv(file.path(getwd(), 'raw-data', 'OSS_RL_Aug17_Sep17.tsv.zip'), 
+               guess_max = 5000)
+colnames(df) <- make.names(tolower(colnames(df)), 
+                           unique = TRUE,
+                           allow_ = TRUE)
 
-# It is often useful to create sets of variable names
-# By convention, the list that stores these variable sets is called 'v'
-# v <- list()
-
-rl_os <- df %>%
-    filter(channel == 'OSS')
-cache('df'); rm(df)
+reason_desc <- read_tsv(file.path(getwd(), 'raw-data', 'reason_desc.txt'))
+colnames(reason_desc) <- make.names(tolower(colnames(reason_desc)), 
+                                    unique = TRUE,
+                                    allow_ = TRUE)
