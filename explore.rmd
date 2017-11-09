@@ -62,6 +62,33 @@ rl_os %>%
 ```
 
 ### Finalized Performance
+Number of Appr, Decline, Cancel
+```{r appr_decline_cancel_table, echo=FALSE}
+rl_os %>%
+    group_by(month, result) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
+Percent of Appr, Decline, Cancel
+```{r appr_decline_cancel_table, echo=FALSE}
+# table of percent
+rl_os %>%
+    group_by(month, result) %>%
+    summarise(finl = n()) %>%
+    mutate(per_finl = prop.table(finl)*100) %>%
+    select(month, result, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
+    kable(format = 'html', digits = 0,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
 Top Decline Reason
 ```{r top_decline, echo=FALSE}
 rl_os %>%
@@ -69,6 +96,23 @@ rl_os %>%
     group_by(month, result_description) %>%
     summarise(finl = n()) %>%
     spread(key = month, value = finl) %>%
+    top_n(5) %>%
+    left_join(reason_desc, by = c('result_description' = 'reason_code')) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
+Percent top Decline Reason
+```{r top_decline, echo=FALSE}
+rl_os %>%
+    filter(result == 'D') %>%
+    group_by(month, result_description) %>%
+    summarise(finl = n()) %>%
+    mutate(per_finl = prop.table(finl)*100) %>%
+    select(month, result_description, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
     top_n(5) %>%
     left_join(reason_desc, by = c('result_description' = 'reason_code')) %>%
     kable(format = 'html', digits = 2,
@@ -91,6 +135,24 @@ rl_os %>%
     kable_styling(bootstrap_options = c("striped", "hover"),
                   full_width = FALSE, position = 'left')
 ```
+
+Percent top Cancel Reason
+```{r top_decline, echo=FALSE}
+rl_os %>%
+    filter(result == 'C') %>%
+    group_by(month, result_description) %>%
+    summarise(finl = n()) %>%
+    mutate(per_finl = prop.table(finl)*100) %>%
+    select(month, result_description, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
+    top_n(5) %>%
+    left_join(reason_desc, by = c('result_description' = 'reason_code')) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
 
 Customer income range table
 ```{r cust_inc_table, echo=FALSE}
