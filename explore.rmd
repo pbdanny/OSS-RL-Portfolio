@@ -83,7 +83,7 @@ rl_os %>%
     mutate(per_finl = prop.table(finl)*100) %>%
     select(month, result, per_finl) %>%
     spread(key = month, value = per_finl) %>%
-    kable(format = 'html', digits = 0,
+    kable(format = 'html', digits = 2,
           format.args = list(decimal.mark = ".", big.mark = ",")) %>%
     kable_styling(bootstrap_options = c("striped", "hover"),
                   full_width = FALSE, position = 'left')
@@ -153,7 +153,6 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
-
 Customer income range table
 ```{r cust_inc_table, echo=FALSE}
 rl_os %>%
@@ -168,9 +167,18 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
+Customer income histogram, (interactive graph)
+```{r cust_inc_histogram, echo=FALSE}
+library(plotly)
+rl_os %>%
+    filter(monthly_salary > 1) %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month))) + 
+    geom_histogram(position = 'identity', alpha = 0.5)
+
+```
+
 Customer income density, (interactive graph)
 ```{r cust_inc_density, echo=FALSE}
-library(plotly)
 p <- rl_os %>%
     filter(monthly_salary > 1) %>%
     ggplot(aes(x = monthly_salary, color = factor(month))) + geom_density() +
