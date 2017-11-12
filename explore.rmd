@@ -75,7 +75,7 @@ rl_os %>%
 ```
 
 Percent of Appr, Decline, Cancel
-```{r appr_decline_cancel_table, echo=FALSE}
+```{r appr_decline_cancel_percent_table, echo=FALSE}
 # table of percent
 rl_os %>%
     group_by(month, result) %>%
@@ -105,7 +105,7 @@ rl_os %>%
 ```
 
 Percent top Decline Reason
-```{r top_decline, echo=FALSE}
+```{r top_decline_percent, echo=FALSE}
 rl_os %>%
     filter(result == 'D') %>%
     group_by(month, result_description) %>%
@@ -137,7 +137,7 @@ rl_os %>%
 ```
 
 Percent top Cancel Reason
-```{r top_decline, echo=FALSE}
+```{r top_decline_percent, echo=FALSE}
 rl_os %>%
     filter(result == 'C') %>%
     group_by(month, result_description) %>%
@@ -167,25 +167,35 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
-Customer income histogram, (interactive graph)
+Customer income historgram for last 4 month, (interactive graph)
 ```{r cust_inc_histogram, echo=FALSE}
-library(plotly)
-rl_os %>%
-    filter(monthly_salary > 1) %>%
-    ggplot(aes(x = monthly_salary, fill = factor(month))) + 
-    geom_histogram(position = 'identity', alpha = 0.5)
+month_data <- unique(rl_os$month)
+month_data_length <- length(month_data)
+last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
 
+library(plotly)
+p <- rl_os %>%
+    filter(monthly_salary > 1, 
+           month %in% month_data[last_4_month_idx:month_data_length]) %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month), 
+               color = factor(month))) + 
+               geom_histogram(position = 'identity', alpha = 0.5,
+                breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000))
+ggplotly(p)
+
+rm(list = c('month_data', 'month_data_length', 'last_4_month_idxz'))
 ```
 
-Customer income density, (interactive graph)
+Customer income density (mountain)
 ```{r cust_inc_density, echo=FALSE}
-p <- rl_os %>%
+library(ggridges)
+rl_os %>%
     filter(monthly_salary > 1) %>%
-    ggplot(aes(x = monthly_salary, color = factor(month))) + geom_density() +
+    ggplot(aes(x = monthly_salary, y = month, group = month)) + 
+    geom_density_ridges() +
     scale_x_log10(breaks = c(10000, 15000, 20000, 30000, 40000, 50000), 
                   labels = c('10k', '15k', '20k', '30k', '40k', '50k'),
                   limits = c(5000, 150000))
-ggplotly(p)
 ```
 
 Customer age range table
@@ -200,25 +210,70 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
+Customer age historgram for last 4 month, (interactive graph)
+```{r cust_age_histogram, echo=FALSE}
+month_data <- unique(rl_os$month)
+month_data_length <- length(month_data)
+last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
+
+library(plotly)
+p <- rl_os %>%
+    filter(month %in% month_data[last_4_month_idx:month_data_length]) %>%
+    ggplot(aes(x = cus_age_range, fill = factor(month), 
+               color = factor(month))) + 
+               geom_histogram(stat = 'count', position = 'identity', alpha = 0.5)
+ggplotly(p)
+
+rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
+```
+
 Customer age density, (interactive graph)
 ```{r cust_age_density, echo=FALSE}
-p <- rl_os %>%
-    ggplot(aes(x = age, color = factor(month))) + geom_density()
-ggplotly(p)
+library(ggridges)
+rl_os %>%
+    ggplot(aes(x = age, y = month, group = month)) + 
+    geom_density_ridges(stat = 'binline', binwidth = 1) +
+    scale_x_continuous(breaks = seq(20, 60, 5))
 ```
 
 Customer region table
+```{r cust_region_table, echo=FALSE}
+rl_os %>%
+    group_by(month, region2) %>%
+    summarise(finl = n()) %>%
+    spread(key = month, value = finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
+
+Percent of Finalized by region
+```{r cust_region_percent_table, echo=FALSE}
+# table of percent
+rl_os %>%
+    group_by(month, region2) %>%
+    summarise(finl = n()) %>%
+    mutate(per_finl = prop.table(finl)*100) %>%
+    select(month, region2, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
+```
 
 Customer region map, (interactive map)
-
-# Explore
-Plot age distribution D36 vs others D
-
-```{r simpleplot, echo=FALSE}
+```{r cust_region_map, echo=FALSE}
+# table of percent
 rl_os %>%
-        filter(result == 'D') %>%
-        mutate(D_group = ifelse(result_description == 'D36', 'D36', 'Oth-D')) %>%
-        ggplot(aes(x = age, color = D_group)) +
-        geom_density() +
-        ggtitle("D36 vs Other-D Age Distribution")
+    group_by(month, region2) %>%
+    summarise(finl = n()) %>%
+    mutate(per_finl = prop.table(finl)*100) %>%
+    select(month, region2, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
+    kable(format = 'html', digits = 2,
+          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = 'left')
 ```
