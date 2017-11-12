@@ -25,7 +25,7 @@ library(ProjectTemplate); load.project()
 ```             
 
 ## Key number summary
-```{r table_summary_result, echo=FALSE}
+```{r table_summary_result, echo=FALSE, message=FALSE}
 rl_os %>%
     filter(appr, approve_amount, fdd) %>%
     group_by(month) %>%
@@ -46,7 +46,7 @@ rl_os %>%
 ### Approved Performance
 
 % Approval rate, Avg Loansize, Avg FDD, % Early 60D
-```{r key_kpi_summary, echo=FALSE}
+```{r key_kpi_summary, echo=FALSE, message=FALSE}
 rl_os %>%
     group_by(month) %>%
     summarise(per_appr = sum(appr)/n()*100, 
@@ -63,7 +63,7 @@ rl_os %>%
 
 ### Finalized Performance
 Number of Appr, Decline, Cancel
-```{r appr_decline_cancel_table, echo=FALSE}
+```{r appr_decline_cancel_table, echo=FALSE, message=FALSE}
 rl_os %>%
     group_by(month, result) %>%
     summarise(finl = n()) %>%
@@ -75,7 +75,7 @@ rl_os %>%
 ```
 
 Percent of Appr, Decline, Cancel
-```{r appr_decline_cancel_percent_table, echo=FALSE}
+```{r appr_decline_cancel_percent_table, echo=FALSE, message=FALSE}
 # table of percent
 rl_os %>%
     group_by(month, result) %>%
@@ -90,7 +90,7 @@ rl_os %>%
 ```
 
 Top Decline Reason
-```{r top_decline, echo=FALSE}
+```{r top_decline, echo=FALSE, message=FALSE, message=FALSE}
 rl_os %>%
     filter(result == 'D') %>%
     group_by(month, result_description) %>%
@@ -105,7 +105,7 @@ rl_os %>%
 ```
 
 Percent top Decline Reason
-```{r top_decline_percent, echo=FALSE}
+```{r top_decline_percent, echo=FALSE, message=FALSE, message=FALSE}
 rl_os %>%
     filter(result == 'D') %>%
     group_by(month, result_description) %>%
@@ -122,7 +122,7 @@ rl_os %>%
 ```
 
 Top Cancel Reason
-```{r top_cancel, echo=FALSE}
+```{r top_cancel, echo=FALSE, message=FALSE, message=FALSE}
 rl_os %>%
     filter(result == 'C') %>%
     group_by(month, result_description) %>%
@@ -137,7 +137,7 @@ rl_os %>%
 ```
 
 Percent top Cancel Reason
-```{r top_decline_percent, echo=FALSE}
+```{r top_cancel_percent, echo=FALSE, message=FALSE, message=FALSE}
 rl_os %>%
     filter(result == 'C') %>%
     group_by(month, result_description) %>%
@@ -154,7 +154,7 @@ rl_os %>%
 ```
 
 Customer income range table
-```{r cust_inc_table, echo=FALSE}
+```{r cust_inc_table, echo=FALSE, message=FALSE}
 rl_os %>%
     filter(income_range %in% c('10,000-14,999', '15,000-19,999', 
                                '20,000-29,999', '30,000 up')) %>%
@@ -168,7 +168,7 @@ rl_os %>%
 ```
 
 Customer income historgram for last 4 month, (interactive graph)
-```{r cust_inc_histogram, echo=FALSE}
+```{r cust_inc_histogram, echo=FALSE, message=FALSE}
 month_data <- unique(rl_os$month)
 month_data_length <- length(month_data)
 last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
@@ -183,11 +183,11 @@ p <- rl_os %>%
                 breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000))
 ggplotly(p)
 
-rm(list = c('month_data', 'month_data_length', 'last_4_month_idxz'))
+rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
 ```
 
 Customer income density (mountain)
-```{r cust_inc_density, echo=FALSE}
+```{r cust_inc_density, echo=FALSE, message=FALSE}
 library(ggridges)
 rl_os %>%
     filter(monthly_salary > 1) %>%
@@ -199,7 +199,7 @@ rl_os %>%
 ```
 
 Customer age range table
-```{r cust_age_table, echo=FALSE}
+```{r cust_age_table, echo=FALSE, message=FALSE}
 rl_os %>%
     group_by(month, cus_age_range) %>%
     summarise(finl = n()) %>%
@@ -211,7 +211,7 @@ rl_os %>%
 ```
 
 Customer age historgram for last 4 month, (interactive graph)
-```{r cust_age_histogram, echo=FALSE}
+```{r cust_age_histogram, echo=FALSE, message=FALSE}
 month_data <- unique(rl_os$month)
 month_data_length <- length(month_data)
 last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
@@ -227,8 +227,8 @@ ggplotly(p)
 rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
 ```
 
-Customer age density, (interactive graph)
-```{r cust_age_density, echo=FALSE}
+Customer age density (mountain)
+```{r cust_age_density, echo=FALSE, message=FALSE}
 library(ggridges)
 rl_os %>%
     ggplot(aes(x = age, y = month, group = month)) + 
@@ -237,7 +237,7 @@ rl_os %>%
 ```
 
 Customer region table
-```{r cust_region_table, echo=FALSE}
+```{r cust_region_table, echo=FALSE, message=FALSE}
 rl_os %>%
     group_by(month, region2) %>%
     summarise(finl = n()) %>%
@@ -248,8 +248,8 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
-Percent of Finalized by region
-```{r cust_region_percent_table, echo=FALSE}
+Percent Customer region
+```{r cust_region_percent_table, echo=FALSE, message=FALSE}
 # table of percent
 rl_os %>%
     group_by(month, region2) %>%
@@ -263,17 +263,58 @@ rl_os %>%
                   full_width = FALSE, position = 'left')
 ```
 
-Customer region map, (interactive map)
-```{r cust_region_map, echo=FALSE}
-# table of percent
-rl_os %>%
-    group_by(month, region2) %>%
+Customer province map, (interactive map)
+```{r cust_province_map, echo=FALSE, message=FALSE}
+# summarise finalized by month, province, tt_finalized
+finl_province <- rl_os %>%
+    group_by(province) %>%
+    summarise(tt_finl = n())
+finl_mth_province <- rl_os %>%
+    group_by(month, province) %>%
     summarise(finl = n()) %>%
-    mutate(per_finl = prop.table(finl)*100) %>%
-    select(month, region2, per_finl) %>%
-    spread(key = month, value = per_finl) %>%
-    kable(format = 'html', digits = 2,
-          format.args = list(decimal.mark = ".", big.mark = ",")) %>%
-    kable_styling(bootstrap_options = c("striped", "hover"),
-                  full_width = FALSE, position = 'left')
+    spread(key = month, value = finl) %>%
+    left_join(finl_province)
+rm(finl_province)
+
+# create shape file with ktc data
+thaiMaps_ktc <- thaiMaps
+thaiMaps_ktc@data <- left_join(x = thaiMaps_ktc@data, y = finl_mth_province,
+                               by = c("PROV_NAMT" = "province"))
+rm(finl_mth_province)
+
+library(leaflet)
+# create color palette function by defined bins data  
+pal_fun <- colorBin("YlOrRd", domain = thaiMaps_ktc$tt_finl, 
+                    bins = c(0, 250, 500, 1000, 2000, 5000, 10000, Inf))
+
+# Label for interactive pop up
+labels <- sprintf("<strong>%s</strong><br/>total finalized : %g", 
+                  thaiMaps_ktc$PROV_NAMT, 
+                  thaiMaps_ktc$tt_finl) %>% 
+    lapply(htmltools::HTML)
+
+# Plot maps
+leaflet(data = thaiMaps_ktc) %>%
+    addTiles() %>%
+    addPolygons(
+      fillColor = ~pal_fun(tt_finl),
+      weight = 2,
+      opacity = 1,
+      color = "white",
+      dashArray = "3",
+      fillOpacity = 0.7,
+      highlight = highlightOptions(
+        weight = 5,
+        color = "#666",
+        dashArray = "",
+        fillOpacity = 0.7,
+        bringToFront = TRUE),
+      label = labels,
+      labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "15px",
+          direction = "auto")) %>%
+    addLegend(pal = pal_fun, values = ~tt_finl, opacity = 0.7, title = NULL,
+    position = "bottomright")
+
 ```
