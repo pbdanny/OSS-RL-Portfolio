@@ -4,7 +4,7 @@ output:
     keep_md: true
 ---
 
-# OSS RL Aug-Sep 2017 analysis on D36
+# OSS RL Jan-Sep 2017 analysis
 
 ```{r adjust_directory_if_needed, include=FALSE}
 # Initialise Project
@@ -180,7 +180,9 @@ p <- rl_os %>%
     ggplot(aes(x = monthly_salary, fill = factor(month), 
                color = factor(month))) + 
                geom_histogram(position = 'identity', alpha = 0.5,
-                breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000))
+                breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000)) +
+    scale_x_continuous(breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                       labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k'))
 ggplotly(p)
 
 rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
@@ -228,6 +230,7 @@ rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
 ```
 
 Customer age density (mountain)
+
 ```{r cust_age_density, echo=FALSE, message=FALSE}
 library(ggridges)
 rl_os %>%

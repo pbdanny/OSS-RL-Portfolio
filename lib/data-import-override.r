@@ -3,7 +3,7 @@
 # This is useful when debugging data manipulation code.
 # rm(list = ls()); library(ProjectTemplate); load.project(list(munging=FALSE))
 
-df <- read_tsv(file.path(getwd(), 'raw-data', 'OSS_RL_Aug17_Sep17.tsv.zip'), 
+df <- read_tsv(file.path(getwd(), 'raw-data', 'OSS_RL_Jan_Sep17.txt.zip'), 
                guess_max = 5000)
 colnames(df) <- make.names(tolower(colnames(df)), 
                            unique = TRUE,

@@ -1,0 +1,43 @@
+---
+output: 
+  html_document:
+    keep_md: true
+---
+
+# OSS RL Aug-Sep 2017 analysis on D36
+
+```{r adjust_directory_if_needed, include=FALSE}
+# Initialise Project
+# Uncomment lines below if rmd file is placed in a subdirectory
+# library(knitr)
+# opts_knit$set(root.dir = normalizePath('../')) 
+```
+
+```{r load_project, include=FALSE}
+# 1. Set options in config/global.dcf
+# 2. Load packages listed in config/global.dcf
+# 3. Import functions and coe in lib directory
+# 4. Load data in data directory
+# 5. Run data manipulations in munge directory 
+
+rm(list = ls()) # optionally refresh workspace
+library(ProjectTemplate); load.project()
+rl_os <- subset(rl_os, month %in% c('y201708', 'y201709'))
+```
+
+```{r obs_month_table, echo=FALSE}
+t <- table(rl_os$result, rl_os$month)
+print(t)
+prop.table(t, 2)*100
+```
+
+Test of independent month, result
+```{r chiq_test_independent, echo=FALSE}
+i <- chisq.test(t)
+i_p <- i$p.value
+if (i_p <= 0.05) {
+    cat('month and result are dependent')
+} else {
+    cat('monht and result are independent')
+}
+```
