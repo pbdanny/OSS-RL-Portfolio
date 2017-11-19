@@ -28,38 +28,37 @@ rm(thaiMaps)
 
 Test of independent (difference) : result & month
 ```{r chiq_test_independent_result_month, echo=FALSE}
-param1 <- 'result'
-param2 <- 'month'
-t <- table(rl_os[[param1]], rl_os[[param2]])
-cat(paste0('Table of ', param1, ' vs ', param2))
+group <- 'month'
+attrib <- 'result'
+t <- table(rl_os[[group]], rl_os[[attrib]])
+cat(paste0('Table of ', attrib, ' by ', group))
 print(t)
 writeLines('')
-cat(paste0('Percent contribution of ', param1, ' by ', param2))
-prop.table(t, 2)*100
+cat(paste0('Percent contribution of ', attrib, ' by ', group))
+prop.table(t, 1)*100
 chisq.test(t)
 i <- chisq.test(t)
 i_p <- i$p.value
 if (i_p <= 0.05) {
-    cat(paste0(param1,' and ',param2, ' are dependent'))
+    cat(paste0(group,' and ',attrib, ' are dependent'))
 } else {
-    cat(paste0(param1,' and ',param2, ' are independent'))
+    cat(paste0(group,' and ',attrib, ' are independent'))
 }
-rm(list = c('param1', 'param2', 't', 'i', 'i_p'))
+# mosaicplot(t)
+# assocplot(t)
+rm(list = c('group', 'attrib', 't', 'i', 'i_p'))
 ```
 
-Test of difference result proportion by month
+Test of each result proportion by month
 ```{r prop_test_each_result_month, echo=FALSE}
-t <- table(rl_os$month, rl_os$result == "A")
-prop.table(t, 1)
-prop.test(t)
-
-chisq.test(t)
-i <- chisq.test(t)
-i_p <- i$p.value
-if (i_p <= 0.05) {
-    cat(paste0(param1,' and ',param2, ' are dependent'))
-} else {
-    cat(paste0(param1,' and ',param2, ' are independent'))
+all_result <- unique(rl_os$result)
+for (i in seq_along(all_result)) {
+    t <- table(rl_os$month, ifelse(rl_os$result == all_result[i], 
+                                   all_result[i], paste0('Not ', all_result[i])))
+        cat(paste0("Contingency Table of ", all_result[i]))
+        print(t)
+        cat("\n% Proportion")
+        print(prop.table(t, 1)*100)
+        print(prop.test(t))
 }
 ```
-
