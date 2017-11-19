@@ -23,21 +23,43 @@ output:
 rm(list = ls()) # optionally refresh workspace
 library(ProjectTemplate); load.project()
 rl_os <- subset(rl_os, month %in% c('y201708', 'y201709'))
+rm(thaiMaps)
 ```
 
-```{r obs_month_table, echo=FALSE}
-t <- table(rl_os$result, rl_os$month)
+Test of independent (difference) : result & month
+```{r chiq_test_independent_result_month, echo=FALSE}
+param1 <- 'result'
+param2 <- 'month'
+t <- table(rl_os[[param1]], rl_os[[param2]])
+cat(paste0('Table of ', param1, ' vs ', param2))
 print(t)
+writeLines('')
+cat(paste0('Percent contribution of ', param1, ' by ', param2))
 prop.table(t, 2)*100
-```
-
-Test of independent month, result
-```{r chiq_test_independent, echo=FALSE}
+chisq.test(t)
 i <- chisq.test(t)
 i_p <- i$p.value
 if (i_p <= 0.05) {
-    cat('month and result are dependent')
+    cat(paste0(param1,' and ',param2, ' are dependent'))
 } else {
-    cat('monht and result are independent')
+    cat(paste0(param1,' and ',param2, ' are independent'))
+}
+rm(list = c('param1', 'param2', 't', 'i', 'i_p'))
+```
+
+Test of difference result proportion by month
+```{r prop_test_each_result_month, echo=FALSE}
+t <- table(rl_os$month, rl_os$result == "A")
+prop.table(t, 1)
+prop.test(t)
+
+chisq.test(t)
+i <- chisq.test(t)
+i_p <- i$p.value
+if (i_p <= 0.05) {
+    cat(paste0(param1,' and ',param2, ' are dependent'))
+} else {
+    cat(paste0(param1,' and ',param2, ' are independent'))
 }
 ```
+
