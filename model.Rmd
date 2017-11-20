@@ -61,4 +61,49 @@ for (i in seq_along(all_result)) {
         print(prop.table(t, 1)*100)
         print(prop.test(t))
 }
+rm(list = c('i', 't'))
 ```
+
+From proportion test (z-test) of each *result*, the *D* effect the % approval rate most. Then do more test on each *D*
+
+Number of top 5 *D*
+```{r top5_d, echo=FALSE}
+top5 <- rl_os %>%
+        filter(result == 'D') %>%
+        group_by(month, result_description) %>%
+        summarise(n = n()) %>%
+        spread(month, n) %>%
+        top_n(5)
+print(top5)
+```
+
+% Proportion of top 5 *D*
+```{r per_top5_d, echo=FALSE}
+rl_os %>%
+    filter(result == 'D') %>%
+    group_by(month, result_description) %>%
+    summarise(n = n()) %>%
+    mutate(per_finl = prop.table(n)*100) %>%
+    select(month, result_description, per_finl) %>%
+    spread(key = month, value = per_finl) %>%
+    top_n(5)
+```
+
+Proportion test top 5 *D* by each *result description*
+```{r test_top5_result_desc, echo=FALSE0}
+top5_desc <- top5$result_description
+d <- rl_os %>% filter(result == 'D')
+for (i in seq_along(top5_desc)) {
+    t <- table(d$month, ifelse(d$result_description == top5_desc[i], 
+                                   top5_desc[i], paste0('Not ', top5_desc[i])))
+        cat(paste0("Contingency Table of ", top5_desc[i]))
+        print(t)
+        cat("\n% Proportion")
+        print(prop.table(t, 1)*100)
+        print(prop.test(t))
+}
+
+```
+
+
+
