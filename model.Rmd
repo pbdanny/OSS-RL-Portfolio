@@ -6,6 +6,8 @@ output:
 
 # OSS RL Aug-Sep 2017 analysis on D36
 
+## Run statistical test on *Decline* for confirmation the increased of *D36*
+
 ```{r adjust_directory_if_needed, include=FALSE}
 # Initialise Project
 # Uncomment lines below if rmd file is placed in a subdirectory
@@ -61,7 +63,7 @@ for (i in seq_along(all_result)) {
         print(prop.table(t, 1)*100)
         print(prop.test(t))
 }
-rm(list = c('i', 't'))
+rm(list = c('i', 't', 'all_result'))
 ```
 
 From proportion test (z-test) of each *result*, the *D* effect the % approval rate most. Then do more test on each *D*
@@ -102,8 +104,151 @@ for (i in seq_along(top5_desc)) {
         print(prop.table(t, 1)*100)
         print(prop.test(t))
 }
+rm(list = c("top5_desc", "top5", "d", "t", "i"))
+```
+
+From statistic test there are 3 reasons that statistically significant
+* D09 ประมาณการรายได้ไม่เพียงพอต่อการชำระหนี้, 201709 < 201708
+* D30 ภาระหนี้ใน NCB สูง ออกจดหมายแจ้งลูกค้า, 201709 > 201708
+* D36 สินเชื่อบุคคลเกินเกณฑ์ BOT ออกจดหมาย NCB, 201709 > 201708
+
+**EDA on D09**
+```{r EDA_D09, echo=FALSE}
+rl_os %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month))) +
+    geom_histogram(position = 'identity', alpha = 0.5,
+        breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000)) +
+    scale_x_continuous(breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Histogram plot of finalized - income by month")
+
+rl_os %>%
+    ggplot(aes(x = monthly_salary, color = factor(month))) +
+    geom_density() +
+    scale_x_log10(limits = c(5000, 200000),
+                  breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Density plot of finalized - income by month")
+
+rl_os %>%
+    filter(result_description == "D09") %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month))) +
+    geom_histogram(position = 'identity', alpha = 0.5,
+        breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000)) +
+    scale_x_continuous(breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Histogram plot of D09 - income by month")
+
+rl_os %>%
+    filter(result_description == "D09") %>%
+    ggplot(aes(x = monthly_salary, color = factor(month))) +
+    geom_density() +
+    scale_x_log10(limits = c(5000, 200000),
+                  breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Density plot of D09 - income by month")
 
 ```
 
+All finalized app for income range 10-12k, 12-15k, 15-20k, 20-30k decreased
+while 30-40k, 40-50k maintain.
 
+As per density plot, the D09 at income range 15-20k, the spike on 201709 flatterned down compare to 201708. That's the reason of decreasing *D09*
 
+**EDA on D30**
+```{r EDA_D30, echo=FALSE}
+
+rl_os %>%
+    filter(result_description == "D30") %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month))) +
+    geom_histogram(position = 'identity', alpha = 0.5,
+        breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000)) +
+    scale_x_continuous(breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Histogram plot of D30 - income by month")
+
+rl_os %>%
+    filter(result_description == "D30") %>%
+    ggplot(aes(x = monthly_salary, color = factor(month))) +
+    geom_density() +
+    scale_x_log10(limits = c(5000, 200000),
+                  breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Density plot of D30 - income by month")
+
+```
+
+**EDA on D36**
+```{r EDA_D36, echo=FALSE}
+
+rl_os %>%
+    filter(result_description == "D36") %>%
+    ggplot(aes(x = monthly_salary, fill = factor(month))) +
+    geom_histogram(position = 'identity', alpha = 0.5,
+        breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000)) +
+    scale_x_continuous(breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Histogram plot of D36 - income by month")
+
+rl_os %>%
+    filter(result_description == "D36") %>%
+    ggplot(aes(x = monthly_salary, color = factor(month))) +
+    geom_density() +
+    scale_x_log10(limits = c(5000, 200000),
+                  breaks = c(10000, 12000, 15000, 20000, 30000, 40000, 50000),
+                  labels = c('10k', '12k', '15k', '20k', '30k', '40k', '50k')) +
+    ggtitle(label = "Density plot of D36 - income by month")
+
+```
+
+For *D36* have high spike, knock down, on income ~16k and 22k.
+
+# Predictive modle on D36, use data from 201709 onwards
+Spliting data -> train (70%), test(30%)
+Split with respect to proportion of d36_flag 
+```{r D36_split_data, echo=FALSE}
+df <- rl_os %>%
+    filter(substr(month, 2, 7) >= 201709) %>%
+    mutate(d36_flag = ifelse(result_description == "D36", TRUE, FALSE))
+
+library(caTools)
+split_idx <- sample.split(df$d36_flag, SplitRatio = 0.7)
+train <- df[split_idx,]
+test <- df[!split_idx,]
+
+detach(package:caTools)
+rm(split_idx)
+```
+
+## Train data base line 
+Use naive guess, predict all according to the most proportion in train data.
+```{r baseline_naive_guess, echo=FALSE}
+cat("Proportion of d36_flag in train data")
+prop.table(table(train$d36_flag))
+
+pred <- rep(FALSE, dim(test)[1])
+writeLines("\nPrediction (all FALSE) - test data")
+prop.table(table(test$d36_flag, pred))
+```
+
+If predict all as *FALSE* , the **accuracy = 0.96761** as base line for new model.
+
+## Logit Model
+```{r model_logit_threshold, echo=FALSE}
+logit_1 <- glm(d36_flag ~ monthly_salary, data = train, family = 'binomial')
+
+pred <- predict(logit_1, newdata = test, type = 'response')
+# choose threshold use ROCR Curve
+library(ROCR)
+rocrPred <- prediction(pred, test$d36_flag)
+rocrPerf <- performance(rocrPred, 'tpr', 'fpr')
+plot(rocrPerf, colorize = TRUE,
+     print.cutoffs.at = seq(0, 0.05, 0.01))
+```
+As *ROCR* curved shown threshold for P(Y = 1) best at 0.02.
+```{r logit_accuracy, echo=FALSE}
+table(test$d36_flag, pred >= 0.02)
+```
+
+The logit model accuracy = (0+5160)/(5160+337+184+0) = 0.9082
+worst than the base-line. T.T
