@@ -212,6 +212,7 @@ df <- rl_os %>%
     mutate(d36_flag = ifelse(result_description == "D36", TRUE, FALSE))
 
 library(caTools)
+set.seed(59)
 split_idx <- sample.split(df$d36_flag, SplitRatio = 0.7)
 train <- df[split_idx,]
 test <- df[!split_idx,]
@@ -235,20 +236,37 @@ If predict all as *FALSE* , the **accuracy = 0.96761** as base line for new mode
 
 ## Logit Model
 ```{r model_logit_threshold, echo=FALSE}
-logit_1 <- glm(d36_flag ~ monthly_salary, data = train, family = 'binomial')
+logit_1 <- glm(d36_flag ~ monthly_salary, 
+               data = train, family = 'binomial')
+logit_2 <- update(logit_1, . ~ . + age)
+logit_3 <- update(logit_2, . ~ . + monthly_salary:age)
+# the logit_3 experience overfitted problems
 
-pred <- predict(logit_1, newdata = test, type = 'response')
-# choose threshold use ROCR Curve
+# logit_4 <- glm(d36_flag ~ log10(monthly_salary), 
+#               data = subset(train, monthly_salary > 0), 
+#               family = 'binomial')
+# logit_4 not significant
+
+
+# Choose model based on least AIC
+logit_1$aic; logit_2$aic; logit_3$aic
+
+pred <- predict(logit_3, newdata = test, type = 'response')
+
+# choose plot ROCR Curve & calculate 'AUC' (Area Under Curved)
 library(ROCR)
 rocrPred <- prediction(pred, test$d36_flag)
 rocrPerf <- performance(rocrPred, 'tpr', 'fpr')
 plot(rocrPerf, colorize = TRUE,
-     print.cutoffs.at = seq(0, 0.05, 0.01))
+     print.cutoffs.at = seq(0, 0.05, 0.01),
+     main = "ROCR curved of logit model")
+writeLines("AUC of logit model")
+print(performance(rocrPred, 'auc')@y.values)
 ```
 As *ROCR* curved shown threshold for P(Y = 1) best at 0.02.
 ```{r logit_accuracy, echo=FALSE}
-table(test$d36_flag, pred >= 0.02)
+table(test$d36_flag, pred >= 0.06)
 ```
 
-The logit model accuracy = (0+5160)/(5160+337+184+0) = 0.9082
+The logit model accuracy = (2191+154)/(2191+154+3306+30) = 0.9082
 worst than the base-line. T.T

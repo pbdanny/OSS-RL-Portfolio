@@ -1,7 +1,7 @@
 ---
 output: 
   html_document:
-    keep_md: true
+    keep_md: false
 ---
 
 # OSS RL Jan-Sep 2017 analysis
@@ -13,20 +13,23 @@ output:
 # opts_knit$set(root.dir = normalizePath('../')) 
 ```
 
-```{r load_project, include=FALSE}
+```{r filter_mgr, include=FALSE}
 # 1. Set options in config/global.dcf
 # 2. Load packages listed in config/global.dcf
 # 3. Import functions and coe in lib directory
 # 4. Load data in data directory
 # 5. Run data manipulations in munge directory 
 
-rm(list = ls()) # optionally refresh workspace
-library(ProjectTemplate); load.project()
+# rm(list = ls()) # optionally refresh workspace
+# library(ProjectTemplate); load.project()
+print("Report for Mgr : ")
+print(mgr_code)
+df <- rl_os %>% filter(rl_os$X1m == mgr_code)
 ```             
 
 ## Key number summary
 ```{r table_summary_result, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     group_by(month) %>%
     summarise(finalize = n(), appr = sum(appr), 
               loansize_amt = sum(approve_amount), fdd_amt = sum(fdd)) %>%
@@ -46,7 +49,7 @@ rl_os %>%
 
 % Approval rate, Avg Loansize, Avg FDD, % Early 60D
 ```{r key_kpi_summary, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     group_by(month) %>%
     summarise(per_appr = sum(appr)/n()*100, 
               avg_loansize = sum(approve_amount)/sum(appr),
@@ -63,7 +66,7 @@ rl_os %>%
 ### Finalized Performance
 Number of Appr, Decline, Cancel
 ```{r appr_decline_cancel_table, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     group_by(month, result) %>%
     summarise(finl = n()) %>%
     spread(key = month, value = finl) %>%
@@ -76,7 +79,7 @@ rl_os %>%
 Percent of Appr, Decline, Cancel
 ```{r appr_decline_cancel_percent_table, echo=FALSE, message=FALSE}
 # table of percent
-rl_os %>%
+df %>%
     group_by(month, result) %>%
     summarise(finl = n()) %>%
     mutate(per_finl = prop.table(finl)*100) %>%
@@ -90,7 +93,7 @@ rl_os %>%
 
 Top Decline Reason
 ```{r top_decline, echo=FALSE, message=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     filter(result == 'D') %>%
     group_by(month, result_description) %>%
     summarise(finl = n()) %>%
@@ -105,7 +108,7 @@ rl_os %>%
 
 Percent top Decline Reason
 ```{r top_decline_percent, echo=FALSE, message=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     filter(result == 'D') %>%
     group_by(month, result_description) %>%
     summarise(finl = n()) %>%
@@ -122,7 +125,7 @@ rl_os %>%
 
 Top Cancel Reason
 ```{r top_cancel, echo=FALSE, message=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     filter(result == 'C') %>%
     group_by(month, result_description) %>%
     summarise(finl = n()) %>%
@@ -137,7 +140,7 @@ rl_os %>%
 
 Percent top Cancel Reason
 ```{r top_cancel_percent, echo=FALSE, message=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     filter(result == 'C') %>%
     group_by(month, result_description) %>%
     summarise(finl = n()) %>%
@@ -154,7 +157,7 @@ rl_os %>%
 
 Customer income range table
 ```{r cust_inc_table, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     filter(income_range %in% c('10,000-14,999', '15,000-19,999', 
                                '20,000-29,999', '30,000 up')) %>%
     group_by(month, income_range) %>%
@@ -168,12 +171,12 @@ rl_os %>%
 
 Customer income historgram for last 4 month, (interactive graph)
 ```{r cust_inc_histogram, echo=FALSE, message=FALSE}
-month_data <- unique(rl_os$month)
+month_data <- unique(df$month)
 month_data_length <- length(month_data)
 last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
 
 library(plotly)
-p <- rl_os %>%
+p <- df %>%
     filter(monthly_salary > 1, 
            month %in% month_data[last_4_month_idx:month_data_length]) %>%
     ggplot(aes(x = monthly_salary, fill = factor(month), 
@@ -190,7 +193,7 @@ rm(list = c('month_data', 'month_data_length', 'last_4_month_idx'))
 Customer income density (mountain)
 ```{r cust_inc_density, echo=FALSE, message=FALSE}
 library(ggridges)
-rl_os %>%
+df %>%
     filter(monthly_salary > 1) %>%
     ggplot(aes(x = monthly_salary, y = month, group = month)) + 
     geom_density_ridges(rel_min_height = 0.01) +
@@ -201,7 +204,7 @@ rl_os %>%
 
 Customer age range table
 ```{r cust_age_table, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     group_by(month, cus_age_range) %>%
     summarise(finl = n()) %>%
     spread(key = month, value = finl) %>%
@@ -213,12 +216,12 @@ rl_os %>%
 
 Customer age historgram for last 4 month, (interactive graph)
 ```{r cust_age_histogram, echo=FALSE, message=FALSE}
-month_data <- unique(rl_os$month)
+month_data <- unique(df$month)
 month_data_length <- length(month_data)
 last_4_month_idx <- ifelse(month_data_length <= 4, 1, month_data_length - 3)
 
 library(plotly)
-p <- rl_os %>%
+p <- df %>%
     filter(month %in% month_data[last_4_month_idx:month_data_length]) %>%
     ggplot(aes(x = age, fill = factor(month), color = factor(month))) + 
                geom_histogram(position = 'identity', alpha = 0.5,
@@ -232,7 +235,7 @@ Customer age density (mountain)
 
 ```{r cust_age_density, echo=FALSE, message=FALSE}
 library(ggridges)
-rl_os %>%
+df %>%
     ggplot(aes(x = age, y = month, group = month)) + 
     geom_density_ridges(stat = 'binline', binwidth = 1) +
     scale_x_continuous(breaks = seq(20, 60, 5), limits = c(18, 62))
@@ -240,7 +243,7 @@ rl_os %>%
 
 Customer region table
 ```{r cust_region_table, echo=FALSE, message=FALSE}
-rl_os %>%
+df %>%
     group_by(month, region2) %>%
     summarise(finl = n()) %>%
     spread(key = month, value = finl) %>%
@@ -253,7 +256,7 @@ rl_os %>%
 Percent Customer region
 ```{r cust_region_percent_table, echo=FALSE, message=FALSE}
 # table of percent
-rl_os %>%
+df %>%
     group_by(month, region2) %>%
     summarise(finl = n()) %>%
     mutate(per_finl = prop.table(finl)*100) %>%
@@ -268,10 +271,10 @@ rl_os %>%
 Customer province map, (interactive map)
 ```{r cust_province_map, echo=FALSE, message=FALSE}
 # summarise finalized by month, province, tt_finalized
-finl_province <- rl_os %>%
+finl_province <- df %>%
     group_by(province) %>%
     summarise(tt_finl = n())
-finl_mth_province <- rl_os %>%
+finl_mth_province <- df %>%
     group_by(month, province) %>%
     summarise(finl = n()) %>%
     spread(key = month, value = finl) %>%
