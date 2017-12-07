@@ -270,3 +270,14 @@ table(test$d36_flag, pred >= 0.06)
 
 The logit model accuracy = (2191+154)/(2191+154+3306+30) = 0.9082
 worst than the base-line. T.T
+
+## Decision Tree
+```{r decision_tree, echo=FALSE}
+library(rpart)
+library(rpart.plot)
+tree <- rpart(d36_flag ~ age + region2 + monthly_salary,
+              data = train,
+              method = 'class')
+
+```
+
