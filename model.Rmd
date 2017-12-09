@@ -272,12 +272,35 @@ The logit model accuracy = (2191+154)/(2191+154+3306+30) = 0.9082
 worst than the base-line. T.T
 
 ## Decision Tree
-```{r decision_tree, echo=FALSE}
+```{r decision_tree_1, echo=FALSE}
 library(rpart)
 library(rpart.plot)
-tree <- rpart(d36_flag ~ age + region2 + monthly_salary,
+
+tree <- rpart(d36_flag ~ age + monthly_salary,
               data = train,
               method = 'class')
-
+plot(tree); text(tree)
+prp(tree)
 ```
+From *plot(tree)* issue an error : *fit is not a tree, just a root*. Caused by the default control too strict then tree can not grow further.
 
+```{r decision_tree_2, echo=FALSE}
+tree <- rpart(d36_flag ~ age + monthly_salary,
+              data = train,
+              method = 'class',
+              control=rpart.control(minsplit=200, minbucket=5, cp=0.0001))
+prp(tree)
+
+tree1 <- update(tree, . ~ . + region2)
+prp(tree1)
+
+tree1 <- update(tree, . ~ . + doc_waive)
+prp(tree1)
+
+tree1 <- update(tree, . ~ . + occupation_code)
+prp(tree1)
+
+tree1 <- update(tree, . ~ . -age -monthly_salary + region2 + doc_waive)
+prp(tree1)
+```
+The independent varible that help grow tree is age + monthly_salary and help a bit with region2 / doc_waive
