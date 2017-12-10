@@ -302,5 +302,41 @@ prp(tree1)
 
 tree1 <- update(tree, . ~ . -age -monthly_salary + region2 + doc_waive)
 prp(tree1)
+rm(tree1)
 ```
 The independent varible that help grow tree is age + monthly_salary and help a bit with region2 / doc_waive
+
+```{r decision_tree_accuracy, echo=FALSE}
+pred <- predict(tree, newdata = test, type = 'class')
+table(test$d36_flag, pred)
+```
+True positive rate / sensitivity / recall = 0/184 = 0
+True negative rate / specificiy = 5496/(5496+1) = .999818
+The model could not decide positive d36 correctly, since decision tree use probability threshold = 0.5 for decision then adjust it with ROC
+
+```{r decision_tree_roc, echo = FALSE}
+library(ROCR)
+pred_prop <- predict(tree, newdata = test)
+head(pred_prop)
+roc_pred <- prediction(pred_prop[,2], test$d36_flag)
+roc_perf <- performance(roc_pred, "tpr", "fpr")
+plot(roc_perf, colorize = TRUE, print.cutoffs.at = seq(0, 0.7, 0.01))
+
+rm(list = c('pred_prop', 'roc_pred', 'roc_pref'))
+```
+From ROC curve use probability threshold = 0.04 as cut off points
+```{r decision_tree_new_threshold, echo = FALSE}
+pred_prop <- predict(tree, newdata = test)
+head(pred_prop)
+
+# Compare decision threshold 0.03, 0.05
+threshold <- 0.01
+writeLines(paste0("Threshold : ",threshold))
+pred_class <- ifelse(pred_prop[,2] >= threshold, TRUE, FALSE)
+table(test$d36_flag, pred_class)
+threshold <- 0.05
+writeLines(paste0("Threshold : ",threshold))
+pred_class <- ifelse(pred_prop[,2] >= threshold, TRUE, FALSE)
+table(test$d36_flag, pred_class)
+```
+    Since the effect of correctly predict d36 higher than falsely predict then choose the threshold at *0.03*. Sensitivity (True positive rate) = 163/(163+21) = 88.58% , specificity (Ture negative rate) = 2260/(3362+3237) = 41.11%
