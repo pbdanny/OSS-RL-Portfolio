@@ -25,7 +25,7 @@ output:
 rm(list = ls()) # optionally refresh workspace
 library(ProjectTemplate); load.project()
 rl_os <- subset(rl_os, month %in% c('y201708', 'y201709'))
-rm(thaiMaps)
+rm(thaiMaps); detach("package:sp", unload=TRUE)
 ```
 
 Test of independent (difference) : result & month
@@ -247,29 +247,35 @@ logit_3 <- update(logit_2, . ~ . + monthly_salary:age)
 #               family = 'binomial')
 # logit_4 not significant
 
-
 # Choose model based on least AIC
+writeLines("\nAIC of 3 logit model")
 logit_1$aic; logit_2$aic; logit_3$aic
 
+# choose logit_3
 pred <- predict(logit_3, newdata = test, type = 'response')
 
 # choose plot ROCR Curve & calculate 'AUC' (Area Under Curved)
 library(ROCR)
-rocrPred <- prediction(pred, test$d36_flag)
-rocrPerf <- performance(rocrPred, 'tpr', 'fpr')
-plot(rocrPerf, colorize = TRUE,
-     print.cutoffs.at = seq(0, 0.05, 0.01),
-     main = "ROCR curved of logit model")
-writeLines("AUC of logit model")
-print(performance(rocrPred, 'auc')@y.values)
+roc_pred <- prediction(pred, test$d36_flag)
+roc_perf <- performance(roc_pred, 'tpr', 'fpr')
+auc <- performance(roc_pred, 'auc')@y.values
+plot(roc_perf, colorize = TRUE,
+     print.cutoffs.at = seq(0, 0.2, 0.01),
+     main = paste0("ROC curve of logit model, AUC : ",auc))
+# clear out not used varible
+rm(list = c("logit_1", "logit_2", "logit_3", "roc_pred", "roc_perf"))
 ```
-As *ROCR* curved shown threshold for P(Y = 1) best at 0.02.
+From *ROC* curved select threshold for P(Y = 1) at 0.035, for the effect of predicting **TRUE** is in high stake than the effect of predicting **FALSE**,keeping low *false positive rate* and maintain predictibility *true positive rate*
 ```{r logit_accuracy, echo=FALSE}
-table(test$d36_flag, pred >= 0.06)
+table(test$d36_flag, pred >= 0.035)
 ```
 
-The logit model accuracy = (2191+154)/(2191+154+3306+30) = 0.9082
-worst than the base-line. T.T
+The logit model performance
+*accuracy* = (65+3937)/(65+119+3937+1560) = 0.7044534
+*sensitivity (true positive rate)* = 65/(119+65) = 0.3037
+*specificity (true negative rate)* = 3937/(3937+1560) = 0.7162
+
+anyway the accuracy is worst than the base-line. T.T
 
 ## Decision Tree
 ```{r decision_tree_1, echo=FALSE}
@@ -285,6 +291,8 @@ prp(tree)
 From *plot(tree)* issue an error : *fit is not a tree, just a root*. Caused by the default control too strict then tree can not grow further.
 
 ```{r decision_tree_2, echo=FALSE}
+library(rpart)
+library(rpart.plot)
 tree <- rpart(d36_flag ~ age + monthly_salary,
               data = train,
               method = 'class',
@@ -320,23 +328,48 @@ pred_prop <- predict(tree, newdata = test)
 head(pred_prop)
 roc_pred <- prediction(pred_prop[,2], test$d36_flag)
 roc_perf <- performance(roc_pred, "tpr", "fpr")
-plot(roc_perf, colorize = TRUE, print.cutoffs.at = seq(0, 0.7, 0.01))
+auc <- performance(roc_pred, "auc")@y.values
+plot(roc_perf, colorize = TRUE, 
+     print.cutoffs.at = seq(0, 0.7, 0.01),
+     main = paste0("ROC curve of decision tree model, AUC : ",auc))
 
-rm(list = c('pred_prop', 'roc_pred', 'roc_pref'))
+rm(list = c('pred_prop', 'roc_pred', 'roc_perf', 'auc'))
 ```
-From ROC curve use probability threshold = 0.04 as cut off points
+Comparing the threshold P(Y=1) at 0.02 vs 0.04
 ```{r decision_tree_new_threshold, echo = FALSE}
 pred_prop <- predict(tree, newdata = test)
 head(pred_prop)
 
 # Compare decision threshold 0.03, 0.05
-threshold <- 0.01
+threshold <- 0.02
 writeLines(paste0("Threshold : ",threshold))
 pred_class <- ifelse(pred_prop[,2] >= threshold, TRUE, FALSE)
 table(test$d36_flag, pred_class)
-threshold <- 0.05
+threshold <- 0.04
 writeLines(paste0("Threshold : ",threshold))
 pred_class <- ifelse(pred_prop[,2] >= threshold, TRUE, FALSE)
 table(test$d36_flag, pred_class)
+
+# clear varible
+rm(list = c("tree", "pred", "threshold"))
 ```
-    Since the effect of correctly predict d36 higher than falsely predict then choose the threshold at *0.03*. Sensitivity (True positive rate) = 163/(163+21) = 88.58% , specificity (Ture negative rate) = 2260/(3362+3237) = 41.11%
+    Since the effect of correctly predict d36 higher than falsely predict then choose the threshold at *0.04*. 
+The tree model performance
+*accuracy* = (118+3561)/(118+66+3561+1846) = 0.6634
+*sensitivity (True positive rate)* = 118/(118+66) = 0.6413
+*specificity (Ture negative rate)* = 3651/(3651+1846) = 0.6641
+
+```{r random_forest, echo = FALSE}
+library(randomForest)
+set.seed(59)
+# random forest dependent var must be factor
+train$d36_flag_factor <- as.factor(train$d36_flag)
+forest <- randomForest(d36_flag_factor ~ age + monthly_salary,
+                       data = train, 
+                       strata = train$d36_flag_factor,
+                       nodesize = 5000)
+
+pred <- predict(forest, newdata = test)
+table(pred)
+```
+
